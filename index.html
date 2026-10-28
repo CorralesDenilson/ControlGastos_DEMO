@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Gastos DEMO | ND Web</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">ND</div>
+        <div>
+          <strong>ND Web</strong>
+          <span>Control de gastos</span>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button class="nav-item active" data-view="dashboard">▦ <span>Resumen</span></button>
+        <button class="nav-item" data-view="expenses">☷ <span>Gastos</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <p>Tu información se guarda<br>en este dispositivo.</p>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CONTROL FINANCIERO</p>
+          <h1 id="pageTitle">Resumen</h1>
+        </div>
+        <div class="topbar-actions"><span id="demoLimit" class="demo-limit">Versión de prueba: 0/5 gastos</span><button class="primary-btn" id="openModal">+ Agregar gasto</button></div>
+      </header>
+
+      <section class="period-switcher period-only">
+        <button class="period-btn active" data-period="week">Vista semanal</button>
+        <button class="period-btn" data-period="month">Vista mensual</button>
+      </section>
+
+      <section class="date-navigation period-only">
+        <button class="icon-btn" id="previousPeriod" aria-label="Periodo anterior">‹</button>
+        <div class="current-period">
+          <strong id="periodTitle">Esta semana</strong>
+          <span id="periodRange"></span>
+        </div>
+        <button class="icon-btn" id="nextPeriod" aria-label="Periodo siguiente">›</button>
+        <button class="today-btn" id="todayBtn">Hoy</button>
+      </section>
+
+      <section class="summary-grid dashboard-only">
+        <article class="summary-card total">
+          <div class="summary-icon">₡</div>
+          <div>
+            <span>Total gastado</span>
+            <strong id="totalAmount">₡0</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon">#</div>
+          <div>
+            <span>Número de gastos</span>
+            <strong id="expenseCount">0</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon">Ø</div>
+          <div>
+            <span>Promedio diario</span>
+            <strong id="dailyAverage">₡0</strong>
+          </div>
+        </article>
+
+        <article class="summary-card">
+          <div class="summary-icon">↑</div>
+          <div>
+            <span>Mayor gasto</span>
+            <strong id="largestExpense">₡0</strong>
+          </div>
+        </article>
+      </section>
+
+      <section class="dashboard-grid dashboard-only">
+        <article class="panel chart-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Gastos por día</h2>
+              <p id="chartSubtitle">Distribución de tus gastos</p>
+            </div>
+          </div>
+          <div class="bar-chart" id="barChart"></div>
+        </article>
+
+        <article class="panel categories-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Por categoría</h2>
+              <p>¿En qué estás gastando?</p>
+            </div>
+          </div>
+          <div class="category-list" id="categoryList"></div>
+        </article>
+      </section>
+
+      <section class="panel recent-panel">
+        <div class="panel-header">
+          <div>
+            <h2 id="expenseListTitle">Gastos recientes</h2>
+            <p id="listSubtitle">Movimientos del periodo seleccionado</p>
+          </div>
+          <button class="text-btn" id="showAllBtn">Ver todos</button>
+        </div>
+
+        <div class="expense-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Gasto</th>
+                <th>Categoría</th>
+                <th>Monto</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="expenseTable"></tbody>
+          </table>
+          <div class="empty-state" id="emptyState">
+            <div class="empty-icon">₡</div>
+            <h3>Aún no hay gastos</h3>
+            <p>Agrega tu primer gasto para comenzar a llevar el control.</p>
+            <button class="primary-btn" id="emptyAddBtn">+ Agregar gasto</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-header">
+        <div>
+          <p class="eyebrow">NUEVO REGISTRO</p>
+          <h2 id="modalTitle">Agregar gasto</h2>
+        </div>
+        <button class="close-btn" id="closeModal">×</button>
+      </div>
+
+      <form id="expenseForm">
+        <input type="hidden" id="expenseId">
+
+        <label>
+          Nombre del gasto
+          <input type="text" id="expenseName" placeholder="Ej. Supermercado" required maxlength="60">
+        </label>
+
+        <div class="form-row">
+          <label>
+            Monto (₡)
+            <input type="number" id="expenseAmount" placeholder="0" min="0" step="1" required>
+          </label>
+
+          <label>
+            Fecha
+            <input type="date" id="expenseDate" required>
+          </label>
+        </div>
+
+        <label>
+          Categoría
+          <select id="expenseCategory" required>
+            <option value="Comida">🍔 Comida</option>
+            <option value="Transporte">🚗 Transporte</option>
+            <option value="Compras">🛒 Compras</option>
+            <option value="Servicios">💡 Servicios</option>
+            <option value="Entretenimiento">🎮 Entretenimiento</option>
+            <option value="Salud">💊 Salud</option>
+            <option value="Educación">📚 Educación</option>
+            <option value="Otros">📌 Otros</option>
+          </select>
+        </label>
+
+        <label>
+          Descripción <span>(opcional)</span>
+          <textarea id="expenseDescription" rows="3" placeholder="Agrega algún detalle..."></textarea>
+        </label>
+
+        <div class="form-actions">
+          <button type="button" class="secondary-btn" id="cancelModal">Cancelar</button>
+          <button type="submit" class="primary-btn" id="saveBtn">Guardar gasto</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
